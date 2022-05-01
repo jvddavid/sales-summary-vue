@@ -3,7 +3,7 @@ Author: João Victor David de Oliveira (j.victordavid2@gmail.com)
 index.html (c) 2022
 Desc: description
 Created:  2022-05-01T00:56:26.914Z
-Modified: 2022-05-01T01:26:04.257Z
+Modified: 2022-05-01T01:45:59.326Z
 -->
 
 <!DOCTYPE html>
@@ -33,18 +33,22 @@ Modified: 2022-05-01T01:26:04.257Z
           <tr>
             <th>ID</th>
             <th>Nome</th>
-            <th>Preço</th>
+            <th>Preço Unit.</th>
             <th>Quantidade</th>
-            <th>Data</th>
+            <th>Preço Total</th>
+            <th>Primeira Venda</th>
+            <th>Ultima Venda</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="sale in sales">
+          <tr v-for="sale in salesByProduct">
             <td>{{ sale.id }}</td>
             <td>{{ sale.name }}</td>
-            <td v-money="'R$ '">{{ sale.price }}</td>
+            <td v-money="'R$ '">{{ sale.avgPrice }}</td>
             <td>{{ sale.qtde }}</td>
+            <td v-money="'R$ '">{{ sale.total }}</td>
             <td>{{ sale.date }}</td>
+            <td>{{ sale.lastDate }}</td>
           </tr>
         </tbody>
       </table>
@@ -58,6 +62,37 @@ Modified: 2022-05-01T01:26:04.257Z
           sales: null
         }
       },
+      computed: {
+        salesByProduct() {
+          if (!this.sales) return []
+          let count = 1;
+          const groupedSales = this.sales.reduce((acc, sale) => {
+            if (!acc[sale.name]) {
+              acc[sale.name] = {
+                id: count++,
+                name: sale.name,
+                totalPrice: sale.price,
+                avgPrice: sale.price,
+                countPrice: 1,
+                qtde: sale.qtde,
+                date: sale.date,
+                lastDate: sale.date,
+                total: sale.price * sale.qtde
+              }
+            } else {
+              acc[sale.name].qtde += sale.qtde;
+              acc[sale.name].total += sale.price * sale.qtde;
+              acc[sale.name].lastDate = sale.date;
+              acc[sale.name].countPrice++;
+              acc[sale.name].totalPrice = acc[sale.name].totalPrice + sale.price;
+              acc[sale.name].avgPrice = acc[sale.name].totalPrice / acc[sale.name].countPrice;
+            }
+            return acc
+          }, {});
+          return groupedSales
+        }
+      }
+      ,
       methods: {
         getSales() {
           fetch('/assets/data/sales.json')
