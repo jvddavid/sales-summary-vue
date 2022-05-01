@@ -3,7 +3,7 @@ Author: João Victor David de Oliveira (j.victordavid2@gmail.com)
 index.html (c) 2022
 Desc: description
 Created:  2022-05-01T00:56:26.914Z
-Modified: 2022-05-01T01:14:41.523Z
+Modified: 2022-05-01T01:26:04.257Z
 -->
 
 <!DOCTYPE html>
@@ -42,7 +42,7 @@ Modified: 2022-05-01T01:14:41.523Z
           <tr v-for="sale in sales">
             <td>{{ sale.id }}</td>
             <td>{{ sale.name }}</td>
-            <td>{{ sale.price }}</td>
+            <td v-money="'R$ '">{{ sale.price }}</td>
             <td>{{ sale.qtde }}</td>
             <td>{{ sale.date }}</td>
           </tr>
@@ -69,6 +69,14 @@ Modified: 2022-05-01T01:14:41.523Z
       },
       mounted() {
         this.getSales()
+      },
+      directives: {
+        money: {
+          mounted: function (el, binding) {
+            const amount = parseFloat(el.innerHTML).toFixed(2).replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
+            el.innerHTML = binding.value + amount;
+          }
+        }
       }
     }).mount('#app')
   </script>
